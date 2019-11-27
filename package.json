@@ -1,0 +1,62 @@
+{
+	"name": "td-completes-me",
+	"displayName": "td_completes_me",
+	"description": "A code completetion engine for Touch Designer",
+	"version": "0.0.1",
+	"keywords": [
+		"multi-root ready"
+	],
+	"engines": {
+		"vscode": "^1.40.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onLanguage:python"
+	],
+	"main": "./client/out/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "extension.td.start_server",
+				"title": "Touch Designer: Start AutoCompletion Engine"
+			}
+		],
+		"configuration": {
+			"type": "object",
+			"title": "TD Completes Me Configuration",
+			"properties": {
+				"tdCompletesMe.connectType": {
+					"type": "string ",
+					"default": "sockets",
+					"description": "How to connect to TD running the TCP Server"
+				},
+				"tdCompletesMe.serverPort": {
+					"type": "number",
+					"default": 1338,
+					"description": "The port of the number of the TD host"
+				},
+				"tdCompletesMe.serverIp": {
+					"type": "string",
+					"default": "127.0.0.1",
+					"description": "Ip of the TD Host"
+				}
+			}
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -b",
+		"watch": "tsc -b -w",
+		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
+		"pretest": "npm run compile",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/mocha": "^5.2.7",
+		"@types/node": "^12.11.7",
+		"typescript": "^3.6.4",
+		"tslint": "^5.20.0"
+	}
+}

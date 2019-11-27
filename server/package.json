@@ -1,0 +1,13 @@
+{
+	"name": "td-completes-me-server-middleware",
+	"description": "Middleware for td-compeletes-me auto-completetion engine",
+	"version": "0.0.1",
+	"author": "Dave Tennent",
+	"engines": {
+		"node": "*"
+	},
+	"dependencies": {
+		"vscode-languageserver": "^5.2.1"
+	},
+	"scripts": {}
+}

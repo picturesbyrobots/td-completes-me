@@ -1,0 +1,20 @@
+{
+	"name": "td-completes-me-client",
+	"description": "The client part of td-completes-me",
+	"author": "Dave Tennent",
+	"license": "MIT",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.33.0"
+	},
+	"scripts": {
+		"update-vscode": "vscode-install",
+		"postinstall": "vscode-install"
+	},
+	"dependencies": {
+		"vscode-languageclient": "^5.2.1"
+	},
+	"devDependencies": {
+		"vscode": "^1.1.35"
+	}
+}
