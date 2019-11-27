@@ -16,7 +16,9 @@ import {
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { Server } from 'http';
+import { Server, request } from 'http';
+
+import axios from 'axios';
 
 // Create a connection for the server. The connection uses Node's IPC as a transport
 let connection= createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
@@ -53,8 +55,7 @@ connection.onInitialize((params:InitializeParams) => {
 			textDocumentSync: documents.syncKind,
 			// Tell the client that the server supports code completion
 			completionProvider: {
-				resolveProvider: true,
-				"triggerCharacters" : ['=']
+				resolveProvider: true
 			}
 		}
 	};
@@ -94,13 +95,21 @@ connection.onDidChangeConfiguration(change => {
 	else {
 		globalSettings = <ServerSettings>((change.settings.td_completes_me || defaultSettings));
 	}
+		console.log('configuration changed');
 });
 
 
 connection.onCompletion((_position : TextDocumentPositionParams) : CompletionItem[] => {
 
 	console.log('completion');
-	return [
+	let document_name = "some_doc.py";
+	let line = 'op("someop").method';
+
+	let completions= []; 
+
+	axios.post('http://localhost:1338', JSON.stringify({document_name,line})).then(
+		(res) => {
+		return  [
 		{
 			label : 'TypeScript',
 			kind: CompletionItemKind.Text,
@@ -110,8 +119,21 @@ connection.onCompletion((_position : TextDocumentPositionParams) : CompletionIte
 			label : 'Javascript',
 			kind: CompletionItemKind.Text,
 			data: 2
+		},
+		{
+			label: 'Hello Complete',
+			kind:CompletionItemKind.Text,
+			data:3
 		}
-	]
+	] 
+		}).catch( (err) => {
+			console.log(err);
+			return [];
+		}).finally( () => {
+			return [];
+		});
+
+		return [];
 });
 
 
@@ -123,6 +145,10 @@ connection.onCompletionResolve(
 		} else if (item.data === 2) {
 			item.detail = 'JavaScript details';
 			item.documentation = 'JavaScript documentation';
+		}
+		else{
+			item.detail = "deets"
+			item.documentation =  "docs"
 		}
 		return item;
 	}
@@ -145,6 +171,12 @@ function getDocumentSettings(resource: string): Thenable<ServerSettings> {
 	}
 	return result;
 }
+
+
+
+documents.onDidOpen(e=> {
+	console.log("opened : " + e.document.uri);
+});
 
 documents.onDidClose(e => {
 	documentSettings.delete(e.document.uri);
