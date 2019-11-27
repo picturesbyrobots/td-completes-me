@@ -9,7 +9,9 @@ import {
 	DidChangeConfigurationNotification,
 	CompletionItem,
 	CompletionItemKind,
-	TextDocumentPositionParams
+	TextDocumentPositionParams,
+	IPCMessageReader,
+	IPCMessageWriter
 } from 'vscode-languageserver';
 
 import * as fs from 'fs';
@@ -17,7 +19,7 @@ import * as path from 'path';
 import { Server } from 'http';
 
 // Create a connection for the server. The connection uses Node's IPC as a transport
-let connection= createConnection(ProposedFeatures.all);
+let connection= createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
 
 // Listen on the connection
 
@@ -30,7 +32,7 @@ let hasDiagnosticRelatedInformationCapability: boolean = false;
 
 
 connection.onInitialize((params:InitializeParams) => {
-	console.log('starting connection!');
+	connection.console.log('starting connection!');
 	let capabilities = params.capabilities;
 	hasConfigurationCapability = !!(
 		capabilities.workspace && !!capabilities.workspace.configuration
@@ -47,10 +49,15 @@ connection.onInitialize((params:InitializeParams) => {
 
 
 	return {
-		capabilities :{
-			textDocumentSync : documents.syncKind,
+		capabilities: {
+			textDocumentSync: documents.syncKind,
+			// Tell the client that the server supports code completion
+			completionProvider: {
+				resolveProvider: true,
+				"triggerCharacters" : ['=']
+			}
 		}
-	}
+	};
 });
 
 connection.onInitialized(() => {
@@ -62,7 +69,7 @@ connection.onInitialized(() => {
 			connection.console.log("Workspace folder change event received");
 		});
 	}
-
+	console.log('server initialized');
 });
 
 interface ServerSettings {
@@ -88,6 +95,40 @@ connection.onDidChangeConfiguration(change => {
 		globalSettings = <ServerSettings>((change.settings.td_completes_me || defaultSettings));
 	}
 });
+
+
+connection.onCompletion((_position : TextDocumentPositionParams) : CompletionItem[] => {
+
+	console.log('completion');
+	return [
+		{
+			label : 'TypeScript',
+			kind: CompletionItemKind.Text,
+			data: 1
+		},
+		{
+			label : 'Javascript',
+			kind: CompletionItemKind.Text,
+			data: 2
+		}
+	]
+});
+
+
+connection.onCompletionResolve(
+	(item: CompletionItem): CompletionItem => {
+		if (item.data === 1) {
+			item.detail = 'TypeScript details';
+			item.documentation = 'TypeScript documentation';
+		} else if (item.data === 2) {
+			item.detail = 'JavaScript details';
+			item.documentation = 'JavaScript documentation';
+		}
+		return item;
+	}
+);
+
+
 
 function getDocumentSettings(resource: string): Thenable<ServerSettings> {
 

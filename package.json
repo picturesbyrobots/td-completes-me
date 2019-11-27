@@ -19,7 +19,7 @@
 	"contributes": {
 		"commands": [
 			{
-				"command": "extension.td.start_server",
+				"command": "extension.tdCompletesMe.start_server",
 				"title": "Touch Designer: Start AutoCompletion Engine"
 			}
 		],
