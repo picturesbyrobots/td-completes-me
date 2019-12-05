@@ -11,7 +11,10 @@ import {
 	CompletionItemKind,
 	TextDocumentPositionParams,
 	IPCMessageReader,
-	IPCMessageWriter
+	IPCMessageWriter,
+	Position,
+	VersionedTextDocumentIdentifier,
+	Range
 } from 'vscode-languageserver';
 
 import * as fs from 'fs';
@@ -19,6 +22,7 @@ import * as path from 'path';
 import { Server, request } from 'http';
 
 import axios from 'axios';
+import * as vscode from 'vscode';
 
 // Create a connection for the server. The connection uses Node's IPC as a transport
 let connection= createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
@@ -31,6 +35,25 @@ let hasConfigurationCapability:boolean = false;
 let hasWorkspaceFolderCapability:boolean = false;
 let hasDiagnosticRelatedInformationCapability: boolean = false;
 
+let completionBuffer:CompletionItem[] = 
+
+		[
+		{
+			label : 'TypeScript',
+			kind: CompletionItemKind.Text,
+			 data: 1
+		},
+		{
+			label : 'Javascript',
+			kind: CompletionItemKind.Text,
+			data: 2
+		},
+		{
+			label: 'Hello Complete',
+			kind:CompletionItemKind.Text,
+			data:3
+		}
+	]
 
 
 connection.onInitialize((params:InitializeParams) => {
@@ -55,7 +78,8 @@ connection.onInitialize((params:InitializeParams) => {
 			textDocumentSync: documents.syncKind,
 			// Tell the client that the server supports code completion
 			completionProvider: {
-				resolveProvider: true
+				resolveProvider: true,
+				triggerCharacters : ['.', '(', "'",'[']
 			}
 		}
 	};
@@ -99,33 +123,51 @@ connection.onDidChangeConfiguration(change => {
 });
 
 
-connection.onCompletion((_position : TextDocumentPositionParams) : CompletionItem[] => {
-
-	console.log('completion');
-	let document_name = "some_doc.py";
-	let line = 'op("someop").method';
-
-	let completions= []; 
-
-	axios.post('http://localhost:1338', JSON.stringify({document_name,line})).then(
+export async function requestCompletionsFromTd(document_name:string, line:string)  {
+	console.log('getting a completion');
+	let results  = axios.post('http://localhost:1338', JSON.stringify({document_name,line})).then(
 		(res) => {
-		return  [
-		{
-			label : 'TypeScript',
-			kind: CompletionItemKind.Text,
-			data: 1
-		},
-		{
-			label : 'Javascript',
-			kind: CompletionItemKind.Text,
-			data: 2
-		},
-		{
-			label: 'Hello Complete',
-			kind:CompletionItemKind.Text,
-			data:3
+			return res;
+		});
+	console.log(results);
+}
+
+connection.onCompletion(async (_position : TextDocumentPositionParams) : Promise<CompletionItem[]> => {
+
+	let results:any = [];
+	let current_document = documents.get(_position.textDocument.uri);
+	let lines:any = []
+	let char = _position.position.character;
+	let line_idx = _position.position.line
+
+	
+	if(current_document) {
+		lines = current_document.getText().split(/\r?\n/g);
+		if( lines.length === 0) { 
+			return results;
 		}
-	] 
+	}
+
+
+	interface ResData {
+		label : string;
+		kind : string;
+	}
+		results = await axios.post('http://localhost:1338', JSON.stringify({current_document , lines,line_idx, char})+ "\n").then(
+		(res) => {
+			let splits = res.data.split("\n\r\n\r")
+			if(splits.length > 1) {
+
+				let res_data = JSON.parse(splits[1]);
+				console.log(res_data)
+				let data_index = 0;
+				let completion_data = res_data.map((result:ResData) => {
+					return {label : result.label, kind:CompletionItemKind.Text, data:data_index++}});
+				
+				return completion_data;
+			} else {
+				return [];
+			}
 		}).catch( (err) => {
 			console.log(err);
 			return [];
@@ -133,7 +175,8 @@ connection.onCompletion((_position : TextDocumentPositionParams) : CompletionIte
 			return [];
 		});
 
-		return [];
+		console.log("results " +JSON.stringify(results))
+		return results;
 });
 
 

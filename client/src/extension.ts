@@ -30,6 +30,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	
 	client.start();
+
 }
 
 // this method is called when your extension is deactivated

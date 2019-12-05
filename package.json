@@ -21,6 +21,10 @@
 			{
 				"command": "extension.tdCompletesMe.start_server",
 				"title": "Touch Designer: Start AutoCompletion Engine"
+			},
+			{
+				"command": "extension.tdCompletesMe.test_command",
+				"title": "Touch Designer: Test Command"
 			}
 		],
 		"configuration": {
