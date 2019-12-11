@@ -64,6 +64,11 @@ class TDCompletesMe :
 
 	def ProcessOperatorToken(self, token_val) :
 		
+		# if this is the first token odds are that we need to move up a level get all the children in the context
+		if self._current_token == 0 :
+			if 'COMP' not in self.OpContext.OPType :
+				self.OpContext = self.OpContext.parent()
+
 		# if we're not in the last token try to get a new op context
 		if self._current_token != len(self._tokens) - 1 :
 		#get all values between "op(""  and ")"
@@ -78,7 +83,8 @@ class TDCompletesMe :
 				if new_context :
 					self.OpContext = new_context
 			return None
-		#otherwise get a list of all the operators in the current context
+	
+
 		else :
 			child_names = [child.name for child in self.OpContext.findChildren(maxDepth = 1)]
 			if len(child_names) :

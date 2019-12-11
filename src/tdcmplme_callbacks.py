@@ -23,7 +23,12 @@ def onReceive(dat, rowIndex, message, bytes, peer):
 		results = []
 		try :
 			msg_data = json.loads(message)
+
 			completions = me.parent().Complete(msg_data)
+
+			if len(completions) :
+				results = completions
+
 			header = getHeader(hType = 'default', msg_bytes = json.dumps(results).encode('utf-8'))
 			peer.sendBytes(header)
 			peer.sendBytes(json.dumps(results).encode('utf-8'))

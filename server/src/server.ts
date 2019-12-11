@@ -162,7 +162,7 @@ connection.onCompletion(async (_position : TextDocumentPositionParams) : Promise
 				console.log(res_data)
 				let data_index = 0;
 				let completion_data = res_data.map((result:ResData) => {
-					return {label : result.label, kind:CompletionItemKind.Text, data:data_index++}});
+					return {label : result.label, kind:CompletionItemKind.Operator, data:data_index++}});
 				
 				return completion_data;
 			} else {
