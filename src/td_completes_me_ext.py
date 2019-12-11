@@ -13,13 +13,8 @@ class TDCompletesMe :
 		self._completions = None
 
 	#TODO this should be some sort of enum
-		self._states = [
-			'GET_METHODS',
-			'GET_PARS',
-			'GET_OPS'
-		]
+		self._state = 'OPS'
 
-		self._state = 'GET_OPS'
 
 
 	def ProcessorLookup(self, token_type) :
@@ -86,9 +81,19 @@ class TDCompletesMe :
 	
 
 		else :
-			child_names = [child.name for child in self.OpContext.findChildren(maxDepth = 1)]
-			if len(child_names) :
-				return child_names
+			completions = []
+			for operator in self.OpContext.findChildren(maxDepth = 1) :
+				completions.append(
+					{
+						"label" : operator.name,
+						"kind" : 6,
+						"detail" : operator.path,
+						"documentation" : operator.__doc__
+					}
+				)
+
+			if len(completions) :
+				return completions
 			else :
 				return None
 
@@ -190,15 +195,7 @@ class TDCompletesMe :
 		res = self.GetCompletions(code = current_code, context_op=op_context)
 		formatted_results = []
 		if res :
-			for result in res :
-				
-				formatted_results.append({
-					"label" : result,
-					"kind" : "name"
-				})
-
-
-			
+			formatted_results = res
 
 		return formatted_results
 
