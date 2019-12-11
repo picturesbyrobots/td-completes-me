@@ -2,6 +2,7 @@ import lib_tokenizer
 import lib_finder
 import re
 import td
+import traceback
 
 
 class TDCompletesMe :
@@ -134,13 +135,18 @@ class TDCompletesMe :
 			if last_token.type in op_lookup_methods :
 				
 				# firts get all the regular op methods
-				method_list = [] 
+				completions = [] 
 				for funct in dir(self.OpContext) :
 					try :
 						# the mod functions attempt to compile the operator and result in many network errors. skip them.
 						if 'mod' not in funct and 'recursiveChildren' not in funct :
 							if callable(getattr(self.OpContext, funct)) and not funct.startswith("__") :
-								method_list.append(funct)
+								completions.append({
+									"label" : funct,
+									"kind" : 0,
+									"detail" : funct,
+									"documentation" : getattr(self.OpContext, funct).__doc__ 
+								})
 						
 						
 
@@ -149,8 +155,10 @@ class TDCompletesMe :
 						print(project.stack())
 						print(project.pythonStack())
 						print("got a name error : {}".format(funct))
+						
 					except Exception as e :
-							pass 
+						print(traceback.format_exc())
+						pass 
 
 
 				# then get any custom modules or functions in the extensions
@@ -160,14 +168,21 @@ class TDCompletesMe :
 					for extension in active_extensions :
 						for m in dir(extension) :
 							if not m.startswith("__") :
-								custom_members.append(m)
+								custom_members.append(
+									{
+										"label" : m,
+										"kind" : 0,
+										"detail" : m,
+										"documentation" : getattr(self.OpContext, m).__doc__
+									}
+								)
 
 				if len(custom_members) :
-					method_list = custom_members + method_list
+					completions = custom_members + completions
 
 
 
-				return method_list
+				return completions
 
 			# the last token type was a Global operator get a list of all global operators and return in
 
