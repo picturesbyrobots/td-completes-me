@@ -3,6 +3,7 @@ import lib_finder
 import re
 import td
 import traceback
+import types
 
 
 class TDCompletesMe :
@@ -121,25 +122,25 @@ class TDCompletesMe :
 		if self._current_token == len(self._tokens) - 1 :
 			# we have to do different things based on the last token type
 			last_token = self._tokens[self._current_token -1]
-			
-			
-			# we want all the op functions for the current context without the dunder methods
-
-			# this could be done with a much more elegant list comp or inspect modules. something like this list comp would do the trick
-			# method_list = [funct for func in dir(self.OpContext) if callable(getattr(self.OpConect, funct)) and not funct starts with '__"]
-			#
-			# unfortuneatly some depreceated methods in the TD module :  "warnings()" and "errors()"
-			# will raise errors and break the things. So we need to build the list long hand
-
 			op_lookup_methods = ['GLOBAL_OP', 'ME', 'PARENT', 'OP_METHOD']
+
 			if last_token.type in op_lookup_methods :
-				
-				# firts get all the regular op methods
+
+				# we want all the op functions for the current context without the dunder methods
+
+				# this could be done with a much more elegant list comp or inspect modules. something like this list comp would do the trick
+				# method_list = [funct for func in dir(self.OpContext) if callable(getattr(self.OpConect, funct)) and not funct starts with '__"]
+				#
+				# unfortuneatly some depreceated methods in the TD module :  "warnings()" and "errors()"
+				# will raise errors and break the things. So we need to build the list long hand
 				completions = [] 
+				# __dir__ returns a list of strings for all attributes of the current context
 				for funct in dir(self.OpContext) :
 					try :
-						# the mod functions attempt to compile the operator and result in many network errors. skip them.
-						if 'mod' not in funct and 'recursiveChildren' not in funct :
+						# certain atttributes and functions will raise an error and clutter the text port. bypass them here
+						bypassed_attributes = ['mod', 'module', 'recursiveChildren', 'warning', 'error']
+						if funct not in bypassed_attributes :
+							# construct a completion item if the attribute is a method and isn't magical
 							if callable(getattr(self.OpContext, funct)) and not funct.startswith("__") :
 								completions.append({
 									"label" : funct,
@@ -147,10 +148,6 @@ class TDCompletesMe :
 									"detail" : funct,
 									"documentation" : getattr(self.OpContext, funct).__doc__ 
 								})
-						
-						
-
-
 					except NameError as e:
 						print(project.stack())
 						print(project.pythonStack())
@@ -166,26 +163,40 @@ class TDCompletesMe :
 				if 'COMP' in self.OpContext.OPType :
 					active_extensions = [extension for extension in self.OpContext.extensions if type(extension) is not None]
 					for extension in active_extensions :
+						# get all methods in the extension minus and dunder methods
 						for m in dir(extension) :
 							if not m.startswith("__") :
-								custom_members.append(
-									{
-										"label" : m,
-										"kind" : 0,
-										"detail" : m,
-										"documentation" : getattr(self.OpContext, m).__doc__
-									}
-								)
+								try :
+									# class level objects(self.ownerComp e.t.c. ) will show up in this.
+									# treat them differently based on type
+									obj = extension.__getattribute__(m)
+									kind_lookup = {
+										types.MethodType: 0,
+										td.baseCOMP : 6
+										}
+									#default to type 6(operator type)
+									try :
+										kind = kind_lookup[type(obj)]
+									except KeyError as e:
+										kind = 6
+									
+									#build the completion
+									custom_members.append(
+										{
+											"label" : m,
+											"kind" : kind,
+											"detail" : m,
+											"documentation" : obj.__doc__ if obj.__doc__ is not None else "member {}".format(obj)
+										}
+									)	
 
+								except Exception as e:
+									print(traceback.format_exc())
+								
 				if len(custom_members) :
 					completions = custom_members + completions
 
-
-
 				return completions
-
-			# the last token type was a Global operator get a list of all global operators and return in
-
 			
 		return None
 
