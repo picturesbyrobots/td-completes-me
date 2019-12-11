@@ -133,7 +133,7 @@ class TDCompletesMe :
 				for funct in dir(self.OpContext) :
 					try :
 						# the mod functions attempt to compile the operator and result in many network errors. skip them.
-						if 'mod' not in funct :
+						if 'mod' not in funct and 'recursiveChildren' not in funct :
 							if callable(getattr(self.OpContext, funct)) and not funct.startswith("__") :
 								method_list.append(funct)
 						
@@ -147,13 +147,15 @@ class TDCompletesMe :
 					except Exception as e :
 							pass 
 
+
 				# then get any custom modules or functions in the extensions
 				custom_members = []
-				active_extensions = [extension for extension in self.OpContext.extensions if type(extension) is not None]
-				for extension in active_extensions :
-					for m in dir(extension) :
-						if not m.startswith("__") :
-							custom_members.append(m)
+				if 'COMP' in self.OpContext.OPType :
+					active_extensions = [extension for extension in self.OpContext.extensions if type(extension) is not None]
+					for extension in active_extensions :
+						for m in dir(extension) :
+							if not m.startswith("__") :
+								custom_members.append(m)
 
 				if len(custom_members) :
 					method_list = custom_members + method_list
