@@ -223,7 +223,12 @@ class TDCompletesMe :
 			op_context = lib_finder.find_op(search_data["search_term"],
 							method = search_data["search_method"])
 		
-		current_code = msg_data["lines"][0]
+
+		try :
+			current_code = msg_data["lines"][msg_data["line_idx"]]
+		except KeyError as e:
+			return []
+
 		res = self.GetCompletions(code = current_code, context_op=op_context)
 		formatted_results = []
 		if res :
