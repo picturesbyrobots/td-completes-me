@@ -84,6 +84,12 @@ class TDCompletesMe :
 
 		else :
 			completions = []
+
+			# respect DOT syntax. if there are special characters in the token val move the context
+			if '/' in token_val :
+				count = len(re.findall("\.", token_val))
+				self.OpContext = self.OpContext.parent(count - 1)
+
 			for operator in self.OpContext.findChildren(maxDepth = 1) :
 				completions.append(
 					{
