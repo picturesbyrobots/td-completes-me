@@ -13,6 +13,7 @@ class TDCompletesMe :
 		self._tokens = []
 		self._current_token = 0
 		self._completions = None
+		self._msg_data = None
 
 	#TODO this should be some sort of enum
 		self._state = 'OPS'
@@ -60,22 +61,62 @@ class TDCompletesMe :
 
 	
 
+	def _get_extension_from_data(self) : 
+		# helper function to pull out any class modules in an incoming stream
+		class_name = None
+		for line in self._msg_data["lines"] :
+			if "class" in line :
+				#we can assume that the class name is directly after the class
+				class_name = line.split(' ')[1]
+			
+		return class_name
+
 	def ProcessSelfToken(self, token_val) :
 		print("processing : {} for context : {}".format(token_val, self.OpContext))
-		# odds are we're looking for an extension. check the parent first
-		print(
-			[parameter for parameter in self.OpContext.parent().pars()]
+
+
+		# we need the full class name to get which op is being referenced by the extension code
+		class_name = self._get_extension_from_data()
+		if not class_name :
+			return 
+		
+		# roll up a custom extension search function to use with lib finder
+		# if I have to use it more than just in this instance I'll migrate to lib_finder proper
+		def search_by_extension(op_to_check, target_name) : 
+			print(op_to_check)
+
+			# if we're not getting passed a COMP check the parent
+			if not op_to_check.isCOMP :
+				op_to_check = op_to_check.parent()
+
+			# loop through all extension objects and check the name against the target name
+			for extension in op_to_check.extensions :
+				if extension is not None :
+					if extension.__class__.__name__ == target_name :
+						return True
+
+			return False 
+
+		# lib finder allows you to specify a custom search fuction. we'll supply the above function
+		# to search creatively by name
+		new_op_context = lib_finder.find_op(
+			class_name , custom_function= search_by_extension
 		)
 
+		if new_op_context :
+		# lib finder returns the matching op by searching the children. 
+		# so if it's not a COMP we want the parent
+			if not new_op_context.isCOMP :
+				new_op_context = new_op_context.parent()
+			
+			# move the context to the returned op
+			self.OpContext = new_op_context
 
 
 
 
-
-
-
-
-
+			
+		
 
 
 
@@ -240,6 +281,7 @@ class TDCompletesMe :
 	def Complete(self, msg_data) :
 		search_data = lib_finder.get_search_data(msg_data["current_document"]["_uri"])
 		op_context = None
+		self._msg_data = msg_data
 		if search_data :
 			op_context = lib_finder.find_op(search_data["search_term"],
 							method = search_data["search_method"])

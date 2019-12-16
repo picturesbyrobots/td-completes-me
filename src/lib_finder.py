@@ -126,12 +126,16 @@ def find_op(search_term, depth = 2, method = 'name', custom_function = None) :
 	"""
 
 
-	try :
-		search_function = {
-			"name" : compare_name,
-			"src" : compare_src }[method]
-	except KeyError as e:
-		return None
+	if custom_function is not None :
+		search_function = custom_function
+
+	else :
+		try :
+			search_function = {
+				"name" : compare_name,
+				"src" : compare_src }[method]
+		except KeyError as e:
+			return None
 
 	# be lazy. it's probably in the open networkd
 	current_network = get_current_network()
