@@ -13,7 +13,8 @@ def tokenize(code) :
                 ("DATA_ACCESS", r'\[.+(\]|$)' ),
                 ("GLOBAL_OP", r'op\..+?(?=(\..+)|\.)'),
                 ("GLOBAL_OP_SEARCH", r'^op\.$'),
-                ("EXT_SEARCH", r'(?![\t])+self\..+?(?=(\..+)|\.)')
+                ("EXT_SEARCH", r'(?![\t])+self\..+?(?=(\..+)|\.)'),
+                ("PAR", r'(?!(\.))par.?(?=(\.))')
 
         ]
 
