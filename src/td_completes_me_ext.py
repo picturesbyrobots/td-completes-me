@@ -25,7 +25,8 @@ class TDCompletesMe :
 			"GLOBAL_OP" : self.ProcessGlobalToken,
 			"DOT" : self.ProcessDotToken,
 			"GLOBAL_OP_SEARCH" : self.ProcessGlobalOpSearch,
-			"PARENT" : self.ProcessParentToken
+			"PARENT" : self.ProcessParentToken,
+			"EXT_SEARCH" : self.ProcessSelfToken
 		}
 
 		if token_type in lookup.keys() :
@@ -58,6 +59,26 @@ class TDCompletesMe :
 		self.OpContext = self.OpContext.parent(levels_up)
 
 	
+
+	def ProcessSelfToken(self, token_val) :
+		print("processing : {} for context : {}".format(token_val, self.OpContext))
+		# odds are we're looking for an extension. check the parent first
+		print(
+			[parameter for parameter in self.OpContext.parent().pars()]
+		)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	def ProcessOperatorToken(self, token_val) :
 		
@@ -255,6 +276,7 @@ class TDCompletesMe :
 
 		self._current_token = 0
 		self._completions = None
+
 
 		for token in self._tokens :
 			self.ProcessToken(token)
