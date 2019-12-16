@@ -83,7 +83,6 @@ class TDCompletesMe :
 		# roll up a custom extension search function to use with lib finder
 		# if I have to use it more than just in this instance I'll migrate to lib_finder proper
 		def search_by_extension(op_to_check, target_name) : 
-			print(op_to_check)
 
 			# if we're not getting passed a COMP check the parent
 			if not op_to_check.isCOMP :
@@ -112,6 +111,16 @@ class TDCompletesMe :
 			# move the context to the returned op
 			self.OpContext = new_op_context
 
+			# if we're looking for the keyword ownerComp in the token value
+			# use some special logic
+			if "ownerComp" in token_val :
+				target_extensions = [extension for extension in self.OpContext.extensions 
+									if class_name == extension.__class__.__name__]
+
+				if len(target_extensions) :
+					target_extension = target_extensions[0]
+					target_op = target_extension.__getattribute__("ownerComp")
+					self.OpContext = target_op
 
 
 
