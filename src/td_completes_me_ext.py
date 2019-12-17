@@ -129,8 +129,20 @@ class TDCompletesMe :
 				
 				# the other option is that we're dealing with a chop operator
 				if "CHOP" in self.OpContext.OPType :
+					channels = [channel.name for channel in self.OpContext.chans()]
 					print('getting channels for {}'.format(self.OpContext.name))
-					
+					if len(channels) :
+						for channel in channels :
+							completions.append(
+											{
+												"label" : channel,
+												"kind" : 6,
+												"detail" : self.OpContext.name,
+												"documentation" :""
+											}
+										)	
+						return completions
+						
 
 	def ProcessParToken(self, token_val) :
 		return
