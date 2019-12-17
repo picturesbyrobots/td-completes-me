@@ -87,11 +87,31 @@ class TDCompletesMe :
 					if "['" or '["' in token_val : 
 						# check for a comma character to get rows or cols 
 						cells = []
-						if ',' not in token_val :
-							cells = self.OpContext.rows()
+						if ',' in token_val :
+							# we need to deduce rows and cols. use a split to get all values between ""
+							# and compare the results. The one with less digits is probably what we
+							# want to complete
+							# TODO. Convert this logic to return rows or cols based on calculated 
+							# cursor position.
+
+							def scrub(in_str) :
+							# helper function to clean cruft from input strings
+								ignored = [' ', '[', ']', "'"]
+								for char in ignored :
+									if char in in_str:
+										in_str = in_str.replace(char, '')
+
+								return in_str
+
+							vals = [scrub(val) for val in token_val.split(',')]
+							if len(vals[0]) > len(vals[1]) : 
+								cells = self.OpContext.cols()
+							else :
+								cells = self.OpContext.rows()
 						else :
-							cells = self.OpContext.cols()
-							#return the rows :
+							cells = self.OpContext.rows()
+
+
 						if len(cells) :
 							for cell_list in cells :
 								head = cell_list[0]
@@ -106,12 +126,11 @@ class TDCompletesMe :
 									}
 								)
 							return completions
-									
-
-
-
-					
 				
+				# the other option is that we're dealing with a chop operator
+				if "CHOP" in self.OpContext.OPType :
+					print('getting channels for {}'.format(self.OpContext.name))
+					
 
 	def ProcessParToken(self, token_val) :
 		return
