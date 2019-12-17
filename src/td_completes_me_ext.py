@@ -28,7 +28,8 @@ class TDCompletesMe :
 			"GLOBAL_OP_SEARCH" : self.ProcessGlobalOpSearch,
 			"PARENT" : self.ProcessParentToken,
 			"EXT_SEARCH" : self.ProcessSelfToken,
-			"PAR" : self.ProcessParToken
+			"PAR" : self.ProcessParToken,
+			"DATA_ACCESS" : self.ProcessDataToken
 		}
 
 		if token_type in lookup.keys() :
@@ -71,6 +72,49 @@ class TDCompletesMe :
 				class_name = line.split(' ')[1]
 			
 		return class_name
+
+	def ProcessDataToken(self, token_val) :
+		print('processing {} in op context : {}'.format(token_val, self.OpContext.name))
+		
+
+		# if we're not dealing with the last token return
+		if self._current_token != len(self._tokens) - 1 :
+			return
+
+		completions = []
+
+		# if we're dealing with an OpContext that is of type DAT
+		if "DAT" in self.OpContext.OPType :
+			# check and make sure we're looking for a string 
+			print(self._msg_data)
+			if "['" or '["' in token_val : 
+				# check for a comma character to get rows or cols 
+				cells = []
+				if ',' not in token_val :
+					cells = self.OpContext.rows()
+				else :
+					cells = self.OpContext.cols()
+					#return the rows :
+				if len(cells) :
+					for cell_list in cells :
+						head = cell_list[0]
+						completions.append(
+							{
+								"label" : str(head.val),
+								"kind" : 6,
+								"detail" : head.owner.name,
+								"documentation" :"""{} :\n \n row : {} \n col : {}""".format(
+									head.owner.path, str(head.row), str(head.col)
+								) 
+							}
+						)
+					return completions
+							
+
+
+
+					
+				
 
 	def ProcessParToken(self, token_val) :
 		return
