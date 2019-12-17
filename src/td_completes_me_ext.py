@@ -27,7 +27,8 @@ class TDCompletesMe :
 			"DOT" : self.ProcessDotToken,
 			"GLOBAL_OP_SEARCH" : self.ProcessGlobalOpSearch,
 			"PARENT" : self.ProcessParentToken,
-			"EXT_SEARCH" : self.ProcessSelfToken
+			"EXT_SEARCH" : self.ProcessSelfToken,
+			"PAR" : self.ProcessParToken
 		}
 
 		if token_type in lookup.keys() :
@@ -71,8 +72,10 @@ class TDCompletesMe :
 			
 		return class_name
 
+	def ProcessParToken(self, token_val) :
+		return
+
 	def ProcessSelfToken(self, token_val) :
-		print("processing : {} for context : {}".format(token_val, self.OpContext))
 
 
 		# we need the full class name to get which op is being referenced by the extension code
@@ -199,6 +202,20 @@ class TDCompletesMe :
 		if self._current_token == len(self._tokens) - 1 :
 			# we have to do different things based on the last token type
 			last_token = self._tokens[self._current_token -1]
+
+			# if the last token type was PAR return a list of parameters for the current op context
+			if last_token.type == "PAR" :
+				completions = []
+				for param in self.OpContext.pars() :
+					completions.append({
+						"label" : param.name,
+						"kind" : 0,
+						"detail" : param.name,
+						"documentation" : param.__doc__
+					})
+				return completions
+
+
 			op_lookup_methods = ['GLOBAL_OP', 'ME', 'PARENT', 'OP_METHOD']
 
 			if last_token.type in op_lookup_methods :
