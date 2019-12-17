@@ -7,12 +7,14 @@ Token = collections.namedtuple('Token', ['type','value','line','column'])
 def tokenize(code) :
         token_spec = [
                 ("OP_METHOD", r'op\(.+?(\))'),
-                ("PARENT", r'parent\(.(\)|$)'),
+                ("PARENT", r'parent\(.(\)|$|)'),
                 ("ME", r'me\.'),
                 ("DOT", r'\.(?![^(]*\))'),
-                ("DATA_ACCESS", r'\[.+(\]|$)' ),
+                ("DATA_ACCESS", r"\[.+\]?'|(?=(\.))"),
                 ("GLOBAL_OP", r'op\..+?(?=(\..+)|\.)'),
-                ("GLOBAL_OP_SEARCH", r'^op\.$')
+                ("GLOBAL_OP_SEARCH", r'^op\.$'),
+                ("EXT_SEARCH", r'(?![\t])+self\..+?(?=(\..+)|\.)'),
+                ("PAR", r'(?!(\.))par.?(?=(\.))')
 
         ]
 

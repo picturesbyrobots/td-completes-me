@@ -79,7 +79,7 @@ connection.onInitialize((params:InitializeParams) => {
 			// Tell the client that the server supports code completion
 			completionProvider: {
 				resolveProvider: true,
-				triggerCharacters : ['.', '(', "'",'[']
+				triggerCharacters : ['.', '(', '"', "'",'[', '/']
 			}
 		}
 	};
@@ -151,7 +151,9 @@ connection.onCompletion(async (_position : TextDocumentPositionParams) : Promise
 
 	interface ResData {
 		label : string;
-		kind : string;
+		kind : CompletionItemKind;
+		detail : string;
+		documentation: string;
 	}
 		results = await axios.post('http://localhost:1338', JSON.stringify({current_document , lines,line_idx, char})+ "\n").then(
 		(res) => {
@@ -162,7 +164,10 @@ connection.onCompletion(async (_position : TextDocumentPositionParams) : Promise
 				console.log(res_data)
 				let data_index = 0;
 				let completion_data = res_data.map((result:ResData) => {
-					return {label : result.label, kind:CompletionItemKind.Operator, data:data_index++}});
+					return {label : result.label, 
+						kind:result.kind, 
+						documentation:result.documentation, 
+						detail : result.detail}});
 				
 				return completion_data;
 			} else {
@@ -182,17 +187,6 @@ connection.onCompletion(async (_position : TextDocumentPositionParams) : Promise
 
 connection.onCompletionResolve(
 	(item: CompletionItem): CompletionItem => {
-		if (item.data === 1) {
-			item.detail = 'TypeScript details';
-			item.documentation = 'TypeScript documentation';
-		} else if (item.data === 2) {
-			item.detail = 'JavaScript details';
-			item.documentation = 'JavaScript documentation';
-		}
-		else{
-			item.detail = "deets"
-			item.documentation =  "docs"
-		}
 		return item;
 	}
 );
