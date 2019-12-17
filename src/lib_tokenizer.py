@@ -10,7 +10,7 @@ def tokenize(code) :
                 ("PARENT", r'parent\(.(\)|$|)'),
                 ("ME", r'me\.'),
                 ("DOT", r'\.(?![^(]*\))'),
-                ("DATA_ACCESS", r'\[.+(\]|$)' ),
+                ("DATA_ACCESS", r"\[.+\]?'|(?=(\.))"),
                 ("GLOBAL_OP", r'op\..+?(?=(\..+)|\.)'),
                 ("GLOBAL_OP_SEARCH", r'^op\.$'),
                 ("EXT_SEARCH", r'(?![\t])+self\..+?(?=(\..+)|\.)'),

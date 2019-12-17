@@ -28,7 +28,8 @@ class TDCompletesMe :
 			"GLOBAL_OP_SEARCH" : self.ProcessGlobalOpSearch,
 			"PARENT" : self.ProcessParentToken,
 			"EXT_SEARCH" : self.ProcessSelfToken,
-			"PAR" : self.ProcessParToken
+			"PAR" : self.ProcessParToken,
+			"DATA_ACCESS" : self.ProcessDataToken
 		}
 
 		if token_type in lookup.keys() :
@@ -71,6 +72,77 @@ class TDCompletesMe :
 				class_name = line.split(' ')[1]
 			
 		return class_name
+
+	def ProcessDataToken(self, token_val) :
+		print('processing {} in op context : {}'.format(token_val, self.OpContext.name))
+		completions = []
+		#we need to make sure at the cursor is actually in the [] operator
+		match = re.search(r"\[.+\]?'|(?=(\.))", self._msg_data["lines"][self._msg_data["line_idx"]])
+		if match is not None :
+			char_idx = self._msg_data["char"]
+			if char_idx > match.start() and char_idx < match.end() :
+				# if we're dealing with an OpContext that is of type DAT
+				if "DAT" in self.OpContext.OPType :
+					# check and make sure we're looking for a string 
+					if "['" or '["' in token_val : 
+						# check for a comma character to get rows or cols 
+						cells = []
+						if ',' in token_val :
+							# we need to deduce rows and cols. use a split to get all values between ""
+							# and compare the results. The one with less digits is probably what we
+							# want to complete
+							# TODO. Convert this logic to return rows or cols based on calculated 
+							# cursor position.
+
+							def scrub(in_str) :
+							# helper function to clean cruft from input strings
+								ignored = [' ', '[', ']', "'"]
+								for char in ignored :
+									if char in in_str:
+										in_str = in_str.replace(char, '')
+
+								return in_str
+
+							vals = [scrub(val) for val in token_val.split(',')]
+							if len(vals[0]) > len(vals[1]) : 
+								cells = self.OpContext.cols()
+							else :
+								cells = self.OpContext.rows()
+						else :
+							cells = self.OpContext.rows()
+
+
+						if len(cells) :
+							for cell_list in cells :
+								head = cell_list[0]
+								completions.append(
+									{
+										"label" : str(head.val),
+										"kind" : 6,
+										"detail" : head.owner.name,
+										"documentation" :"""{} :\n \n row : {} \n col : {}""".format(
+											head.owner.path, str(head.row), str(head.col)
+										) 
+									}
+								)
+							return completions
+				
+				# the other option is that we're dealing with a chop operator
+				if "CHOP" in self.OpContext.OPType :
+					channels = [channel.name for channel in self.OpContext.chans()]
+					print('getting channels for {}'.format(self.OpContext.name))
+					if len(channels) :
+						for channel in channels :
+							completions.append(
+											{
+												"label" : channel,
+												"kind" : 6,
+												"detail" : self.OpContext.name,
+												"documentation" :""
+											}
+										)	
+						return completions
+						
 
 	def ProcessParToken(self, token_val) :
 		return
@@ -301,7 +373,13 @@ class TDCompletesMe :
 			process_method = self.ProcessorLookup(token.type)
 			
 			if process_method :
-				self._completions = process_method(token.value)
+				new_completions = process_method(token.value) 
+				# some operator methods will return completions even if they're not the last operator.
+				# this logic will only overwrite completions
+				if new_completions :
+					self._completions.extend(new_completions)
+					
+					
 
 
 	def Complete(self, msg_data) :
@@ -343,7 +421,7 @@ class TDCompletesMe :
 			self._tokens = tkns
 
 		self._current_token = 0
-		self._completions = None
+		self._completions = []
 
 
 		for token in self._tokens :
