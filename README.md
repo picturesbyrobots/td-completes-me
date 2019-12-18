@@ -1,6 +1,6 @@
 # TD Completes Me
 
-a prototype auto-completion engine for Touch Designer. Actively Developed with LOVE by Dave Tennent(picturesbyrobots)
+a prototype auto-completion engine for Touch Designer.
 
 ## Features
 
