@@ -12,7 +12,7 @@ If you have any requirements or dependencies, add a section describing those and
 
 ## Known Issues
 
-Only supports talking to one stance of Touch Designer at a time
+Only supports talking to one instance of Touch Designer at a time
 
 ## Release Notes
 
