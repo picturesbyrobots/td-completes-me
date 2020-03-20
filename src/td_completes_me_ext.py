@@ -33,6 +33,7 @@ class TDCompletesMe :
 		}
 
 		if token_type in lookup.keys() :
+			print(token_type)
 			return lookup[token_type]
 		else:
 			return None
@@ -269,7 +270,24 @@ class TDCompletesMe :
 
 
 	def ProcessGlobalOpSearch(self, token) :
-		return [operator for operator in op if not operator.startswith('TD') and not operator.startswith('OP')]
+		"""Returns formatted completions for operators in global shortcuts."""
+
+		completions = []
+		# the list comp below will return a list of operator names.
+		op_names = [operator for operator in op if not operator.startswith('TD') and not operator.startswith('OP')]
+		for operator_name in op_names:
+			# actual ops are store as attributes. get them so we can pull the paths
+			target_op = op.__getattribute__(operator_name)
+			if target_op :
+				completions.append(
+							{
+								"label" : target_op.name,
+								"kind" : 6,
+								"detail" : target_op.path,
+								"documentation" : target_op.__doc__
+							}	)
+
+		return completions
 	def ProcessDotToken(self, token) :
 		if self._current_token == len(self._tokens) - 1 :
 			# we have to do different things based on the last token type
@@ -378,6 +396,7 @@ class TDCompletesMe :
 				# this logic will only overwrite completions
 				if new_completions :
 					self._completions.extend(new_completions)
+
 					
 					
 
@@ -397,6 +416,7 @@ class TDCompletesMe :
 			return []
 
 		res = self.GetCompletions(code = current_code, context_op=op_context)
+		
 		formatted_results = []
 		if res :
 			formatted_results = res
