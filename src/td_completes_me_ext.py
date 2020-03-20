@@ -75,7 +75,6 @@ class TDCompletesMe :
 		return class_name
 
 	def ProcessDataToken(self, token_val) :
-		print('processing {} in op context : {}'.format(token_val, self.OpContext.name))
 		completions = []
 		#we need to make sure at the cursor is actually in the [] operator
 		match = re.search(r"\[.+\]?'|(?=(\.))", self._msg_data["lines"][self._msg_data["line_idx"]])
@@ -147,6 +146,9 @@ class TDCompletesMe :
 
 	def ProcessParToken(self, token_val) :
 		return
+
+	def UpdateContextReadout(self) :
+		self.ownerComp.op('op_context').appendRow(self.OpContext.name)
 
 	def ProcessSelfToken(self, token_val) :
 
@@ -389,6 +391,7 @@ class TDCompletesMe :
 	def ProcessToken(self, token) :
 		if self._current_token != len(self._tokens) :
 			process_method = self.ProcessorLookup(token.type)
+			self.UpdateContextReadout()
 			
 			if process_method :
 				new_completions = process_method(token.value) 
@@ -396,6 +399,7 @@ class TDCompletesMe :
 				# this logic will only overwrite completions
 				if new_completions :
 					self._completions.extend(new_completions)
+		
 
 					
 					
@@ -415,6 +419,7 @@ class TDCompletesMe :
 		except KeyError as e:
 			return []
 
+		self.ownerComp.op('op_context').clear()
 		res = self.GetCompletions(code = current_code, context_op=op_context)
 		
 		formatted_results = []
