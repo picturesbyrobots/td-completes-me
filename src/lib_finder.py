@@ -16,21 +16,17 @@ def get_search_data(file_path) :
 
 	# if we're in touch designers temp directory find the dat
 	if 'touchtmp' in head :
-		match = re.search(r'dat_(.*?)__', tail)
-		op_name = match.group(1) 
-		if op_name :
-			result = {
-				"search_term" : op_name,
-				"search_method" : "name"
-			}
-		else :
-			result = {
-				"search_term" : tail,
-				"search_method" : "src"
-			}
-		return result
+		result = {
+			"search_term" : tail,
+			"search_method" : "editing_file"
+		}
+	else :
+		result = {
+			"search_term" : tail,
+			"search_method" : "src"
+		}
 
-		return None
+	return result
 
 
 def compare_src(op_to_check, target_name, evalParams = True) :
@@ -80,9 +76,27 @@ def compare_src(op_to_check, target_name, evalParams = True) :
 	except :
 		raise
 
-def compare_name(op_to_check, target_name) :
-	"""naive function to compare the name of an operator with a target name."""
-	if op_to_check.name == target_name :
+def compare_file(op_to_check, file_name) :
+	"""Thanks to Ben Voight we can now check against the editing file."""
+
+	#not sure which operators have the member functions
+	#return if can't find it
+	if 'editingFile' not in dir(op_to_check)  :
+		return False 
+
+	if op_to_check.editingFile is None :
+		return False 
+
+	def split_tail(fp) :
+		#remove any mac or pc path weirdness
+		path_to_file = path.abspath(fp)
+		if path.isfile(path_to_file) :
+			_,tail = path.split(path_to_file)
+			return tail
+	print("comparing : {} to {} :".format(split_tail(op_to_check.editingFile),file_name))
+
+	if split_tail(op_to_check.editingFile) == file_name :
+		print('found op')
 		return True
 	else : 
 		return False
@@ -132,12 +146,12 @@ def find_op(search_term, depth = 2, method = 'name', custom_function = None) :
 	else :
 		try :
 			search_function = {
-				"name" : compare_name,
+				"editing_file" : compare_file,
 				"src" : compare_src }[method]
 		except KeyError as e:
 			return None
 
-	# be lazy. it's probably in the open networkd
+	# be lazy. it's probably in the open network
 	current_network = get_current_network()
 	if search_function(current_network.currentChild, search_term) :
 		return current_network.currentChild
