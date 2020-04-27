@@ -33,7 +33,6 @@ class TDCompletesMe :
 		}
 
 		if token_type in lookup.keys() :
-			print(token_type)
 			return lookup[token_type]
 		else:
 			return None
@@ -148,7 +147,15 @@ class TDCompletesMe :
 		return
 
 	def UpdateContextReadout(self) :
-		self.ownerComp.op('op_context').appendRow(self.OpContext.name)
+		context_op = self.ownerComp.op('op_context')
+		if context_op.numRows == 0 :
+			self.ownerComp.op('op_context').appendRow(self.OpContext.name)
+			return
+
+		else :
+			last_cell = context_op[context_op.numRows -1, 0]
+			if self.OpContext.name not in last_cell.val :
+				self.ownerComp.op('op_context').appendRow(self.OpContext.name)
 
 	def ProcessSelfToken(self, token_val) :
 
@@ -233,6 +240,10 @@ class TDCompletesMe :
 
 		else :
 			completions = []
+
+			# if the current op context is not in a COMP go up one level
+			if 'COMP' not in self.OpContext.OPType :
+				self.OpContext = self.OpContext.parent()
 
 			# respect DOT syntax. if there are special characters in the token val move the context
 			if '/' in token_val :
@@ -409,6 +420,7 @@ class TDCompletesMe :
 		search_data = lib_finder.get_search_data(msg_data["current_document"]["_uri"])
 		op_context = None
 		self._msg_data = msg_data
+		print(search_data)
 		if search_data :
 			op_context = lib_finder.find_op(search_data["search_term"],
 							method = search_data["search_method"])
