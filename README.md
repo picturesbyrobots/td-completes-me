@@ -1,7 +1,7 @@
 # TD Completes Me
 
 
-![GitHub Logo](/src/img/repo.png)
+![GitHub Logo](/src/img/repo.PNG)
 
 
 # What is this?
