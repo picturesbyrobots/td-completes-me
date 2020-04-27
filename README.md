@@ -1,35 +1,45 @@
-# td-completes-me README
+# TD Completes Me
 
-This is the README for your extension "td-completes-me". After writing up a brief description, we recommend including the following sections.
+
+![GitHub Logo](/src/img/repo.png)
+
+
+# What is this?
+This is an autocompletion engine extension and TOX that attempts to make writing python in TD a little easier
+
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+* Can't remember the name of that op you just dropped into the network? `td_completes_me` has you covered. 
 
-For example if there is an image subfolder under your extension project workspace:
 
-\!\[feature X\]\(images/feature-x.png\)
+* parameter auto completion is supported
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+* global operators
 
-## Requirements
+* `self.ownerComp` is respected (as long as it's called `ownerComp`)
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+* CHOP channels and DATS
 
-## Extension Settings
+* custom extension and baked in operator methods
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
 
-For example:
+## Requirments
+Right now only VSCode is supported. If there's interest we'll consider a STL addon. 
 
-This extension contributes the following settings:
+TD builds > 2020.20020
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+## Installation. 
+Header on over to the release page. There you'll find a .vsix extension and a tox. You can install the vsix extension by hitting control+shift+P and selecting extensions=>install from vsix.
+
+you can also go here for feature breakdown and installation instructions.
+
 
 ## Known Issues
+Currently `td_completes_me` will only work with one instance of Touch. In theory you could run two instances but because we use a TCP based transport running a second instance with a `td_completes_me` tox in it will cause things to BREAK
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+## Tested On
+PC. It will probably work on a Mac.
 
 ## Release Notes
 
@@ -39,27 +49,5 @@ Users appreciate release notes as you update your extension.
 
 Initial release of ...
 
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
 
 **Enjoy!**
