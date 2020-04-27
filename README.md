@@ -43,11 +43,12 @@ PC. It will probably work on a Mac.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
 
 ### 1.0.0
 
-Initial release of ...
+Initial release.
+
+
 
 
 **Enjoy!**
