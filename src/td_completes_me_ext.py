@@ -1,3 +1,18 @@
+"""Copyright 2019 David Tennent
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), 
+to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+"""
+
+
 import lib_tokenizer
 import lib_finder
 import re
@@ -7,6 +22,12 @@ import types
 
 
 class TDCompletesMe :
+	"""A Class for providing autocompletions to VScode. 
+	See https://wwww.github.com/picturesbyrobots/td_completes_me for vsix installation instructions
+
+	@AUTHOR Dave Tennent
+	"""
+
 	def __init__(self, ownerComp) :
 		self.ownerComp = ownerComp
 		self.OpContext = op('/')
@@ -360,13 +381,14 @@ class TDCompletesMe :
 				if 'COMP' in self.OpContext.OPType :
 					active_extensions = [extension for extension in self.OpContext.extensions if type(extension) is not None]
 					for extension in active_extensions :
-						# get all methods in the extension minus and dunder methods
+						# get all methods in the extension minus any dunder methods
 						for m in dir(extension) :
 							if not m.startswith("__") :
 								try :
 									# class level objects(self.ownerComp e.t.c. ) will show up in this.
 									# treat them differently based on type
 									obj = extension.__getattribute__(m)
+									#here we assign the icon type based on the method 
 									kind_lookup = {
 										types.MethodType: 0,
 										td.baseCOMP : 6
@@ -417,23 +439,35 @@ class TDCompletesMe :
 
 
 	def Complete(self, msg_data) :
+		"""
+		Entry point for the completion process. The completion function relies on 
+		establishing a "context" that a statement or expression is evaluating from.
+		
+		"""
+
+		# use a helper function to make some choices about how we search for the op
 		search_data = lib_finder.get_search_data(msg_data["current_document"]["_uri"])
 		op_context = None
 		self._msg_data = msg_data
-		print(search_data)
 		if search_data :
+			# attempt to find the operator in the currently open TOE. see local/modules/lib_finder for more details
 			op_context = lib_finder.find_op(search_data["search_term"],
 							method = search_data["search_method"])
 		
 
+		# extract the current line from the message data
 		try :
 			current_code = msg_data["lines"][msg_data["line_idx"]]
 		except KeyError as e:
 			return []
 
+		#if this is the first completetion odds are that we already have a context. Clear the readout
 		self.ownerComp.op('op_context').clear()
+
+		# run completions
 		res = self.GetCompletions(code = current_code, context_op=op_context)
 		
+		# The TSServer over in VSCode is expecting an array. If there are no completions we return an empty array
 		formatted_results = []
 		if res :
 			formatted_results = res
