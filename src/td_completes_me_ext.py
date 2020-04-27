@@ -148,9 +148,14 @@ class TDCompletesMe :
 
 	def UpdateContextReadout(self) :
 		context_op = self.ownerComp.op('op_context')
-		last_cell = context_op[content_op.numRows -1, 0]
-		if self.OpContext.name not in last_cell.val :
+		if context_op.numRows == 0 :
 			self.ownerComp.op('op_context').appendRow(self.OpContext.name)
+			return
+
+		else :
+			last_cell = context_op[context_op.numRows -1, 0]
+			if self.OpContext.name not in last_cell.val :
+				self.ownerComp.op('op_context').appendRow(self.OpContext.name)
 
 	def ProcessSelfToken(self, token_val) :
 
