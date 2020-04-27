@@ -1,5 +1,20 @@
-"""A module for finding operators in Touch Designer
-	"""
+"""
+A module for finding operators in Touch Designer
+"""
+
+"""Copyright 2019 David Tennent
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), 
+to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+"""
 
 
 
@@ -16,21 +31,17 @@ def get_search_data(file_path) :
 
 	# if we're in touch designers temp directory find the dat
 	if 'touchtmp' in head :
-		match = re.search(r'dat_(.*?)__', tail)
-		op_name = match.group(1) 
-		if op_name :
-			result = {
-				"search_term" : op_name,
-				"search_method" : "name"
-			}
-		else :
-			result = {
-				"search_term" : tail,
-				"search_method" : "src"
-			}
-		return result
+		result = {
+			"search_term" : tail,
+			"search_method" : "editing_file"
+		}
+	else :
+		result = {
+			"search_term" : tail,
+			"search_method" : "src"
+		}
 
-		return None
+	return result
 
 
 def compare_src(op_to_check, target_name, evalParams = True) :
@@ -80,9 +91,25 @@ def compare_src(op_to_check, target_name, evalParams = True) :
 	except :
 		raise
 
-def compare_name(op_to_check, target_name) :
-	"""naive function to compare the name of an operator with a target name."""
-	if op_to_check.name == target_name :
+def compare_file(op_to_check, file_name) :
+	"""Thanks to Ben Voight we can now check against the editing file."""
+
+	#not sure which operators have the member functions
+	#return if can't find it
+	if 'editingFile' not in dir(op_to_check)  :
+		return False 
+
+	if op_to_check.editingFile is None :
+		return False 
+
+	def split_tail(fp) :
+		#remove any mac or pc path weirdness
+		path_to_file = path.abspath(fp)
+		if path.isfile(path_to_file) :
+			_,tail = path.split(path_to_file)
+			return tail
+
+	if split_tail(op_to_check.editingFile) == file_name :
 		return True
 	else : 
 		return False
@@ -132,12 +159,12 @@ def find_op(search_term, depth = 2, method = 'name', custom_function = None) :
 	else :
 		try :
 			search_function = {
-				"name" : compare_name,
+				"editing_file" : compare_file,
 				"src" : compare_src }[method]
 		except KeyError as e:
 			return None
 
-	# be lazy. it's probably in the open networkd
+	# be lazy. it's probably in the open network
 	current_network = get_current_network()
 	if search_function(current_network.currentChild, search_term) :
 		return current_network.currentChild
