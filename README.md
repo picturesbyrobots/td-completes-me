@@ -60,9 +60,13 @@ PC. It will probably work on a Mac.
 ## Release Notes
 
 
-### 1.0.0
+### 0.3.0
 
 Initial release.
+
+### 0.3.1
+fix warnings from external callback scripts
+
 
 
 
