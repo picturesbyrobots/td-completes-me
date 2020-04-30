@@ -5,7 +5,7 @@
 
 
 # What is this?
-This is a combo TOX/VSCode extension that leverages the Language Server protocal to send a list of context sensitive auto-completion items to Microsofts Visual Studio code. 
+This is a combo TOX/VSCode extension that leverages the Language Server protocal to send a list of context sensitive auto-completion items to Microsoft's Visual Studio Code. 
 
 
 
@@ -31,7 +31,7 @@ Creating extensive python scripts in Touch Designer can often be time consuming.
 ![PAR](/src/img/PAR_720.png)
 
  * ### `self.ownerComp` is respected (as long as it's called `ownerComp`)
- ![PAR](/src/img/ext_720.gif)
+ ![PAR](/src/img/EXT_720.gif)
 * ### completions for custom extension and TD provided operator methods and members
 ![MEMBER](/src/img/MEMBER.png)
 
