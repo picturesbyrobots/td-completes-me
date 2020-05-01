@@ -2,13 +2,12 @@
 	"name": "td-completes-me",
 	"displayName": "td_completes_me",
 	"description": "A code completetion engine for Touch Designer",
-	"publisher":"DaveTennent",
+	"publisher": "DaveTennent",
 	"version": "0.1.0",
 	"repository": {
 		"type": "git",
-		"url" : "https://github.com/picturesbyrobots/td-completes-me.git"
+		"url": "https://github.com/picturesbyrobots/td-completes-me.git"
 	},
-
 	"keywords": [
 		"multi-root ready"
 	],
