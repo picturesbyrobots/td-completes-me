@@ -5,7 +5,7 @@
 
 
 # What is this?
-This is a combo TOX/VSCode extension that leverages the Language Server protocal to send a list of context sensitive auto-completion items to Microsoft's Visual Studio Code. 
+This is a combo TOX/Text Editor extension system that leverages TCP protocals to send a list of context sensitive auto-completion items to your Text Editor when editing externalDAT files for Derivitives Touch Designer
 
 
 
@@ -38,12 +38,17 @@ Creating extensive python scripts in Touch Designer can often be time consuming.
 
 
 ## Requirments
-Right now only VSCode is supported. If there's interest we'll consider a Sublime Text addon. 
+Sublime Text 3 or MS VsCode
 
 TD builds > 2020.20020
 
 ## Installation. 
+
+# VsCode
 Clone or download this REPO and then head over to the BUILDS directory. There you'll find a .vsix extension and a tox. You can install the vsix extension by hitting control+shift+P and selecting extensions=>install from vsix. You can also download the latest version from the Release Tab of the repo
+
+# Sublime Text 3
+Clone or download this REPO and head over to the subl directory. There you'll find a .sublime-package file as well as the source code for the Sublime Text Plugin. Install the package by placing it in the Installed Packages directory of Sublime. 
 
 
 ## Contributing
@@ -51,7 +56,7 @@ Feel free! We(meaning me) are actively accepting pull requests.
 
 
 ## Known Issues
-Currently the `td_completes_me` uses a tcp based transport to communicate between Touch and VsCode. It will communicate by default on port 1338. If there is another process operating on this port then it will cause the extension to break. In practice this won't have any effect on editing your networks, you just won't get those sweet auto-completions!
+Currently the `td_completes_me` uses a tcp based transport to communicate between Touch and VsCode/ST3. It will communicate by default on port 1338. If there is another process operating on this port then it will cause the extension to break. In practice this won't have any effect on editing your networks, you just won't get those sweet auto-completions!
 
 
 ## Tested On
