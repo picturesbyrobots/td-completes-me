@@ -1,53 +1,74 @@
 # TD Completes Me
 
 
-![GitHub Logo](/src/img/repo.png)
+![Repo Logo](/src/img/repo.PNG)
 
 
 # What is this?
-This is an autocompletion engine extension and TOX that attempts to make writing python in TD a little easier
+This is a combo TOX/VSCode extension that leverages the Language Server protocal to send a list of context sensitive auto-completion items to Microsoft's Visual Studio Code. 
 
 
-## Features
-
-* Can't remember the name of that op you just dropped into the network? `td_completes_me` has you covered. 
 
 
-* parameter auto completion is supported
+## What problem does this solve?
+Creating extensive python scripts in Touch Designer can often be time consuming. We can use external editors like Sublime Text and VsCode but many of the features that make these tools beloved among traditional developers are not available to the Touch Designer programmer. This tool attempts to make editing the python scripts associated with Touch Designer projects a little more fluid and hopefully a little more joyful by implementing a (partial) autocompletion engine specific to the idioms of TD.
 
-* global operators
+# Features
 
-* `self.ownerComp` is respected (as long as it's called `ownerComp`)
+* ### `op('')` provides a list of operator names relative to the curent text DAT being edited
 
-* CHOP channels and DATS
 
-* custom extension and baked in operator methods
+  ![OPS](/src/img/CHOP_720.gif)
+
+
+
+ * ### get completions for CHOP channel names and DAT rows and cols!
+
+ ![DAT](/src/img/DAT_720_still.png)
+
+*  ### parameter auto completion. get a list of availabe parameters by typing `op('moviefilein1').par.`
+
+![PAR](/src/img/PAR_720.png)
+
+ * ### `self.ownerComp` is respected (as long as it's called `ownerComp`)
+ ![PAR](/src/img/EXT_720.gif)
+* ### completions for custom extension and TD provided operator methods and members
+![MEMBER](/src/img/MEMBER.png)
+
 
 
 ## Requirments
-Right now only VSCode is supported. If there's interest we'll consider a STL addon. 
+Right now only VSCode is supported. If there's interest we'll consider a Sublime Text addon. 
 
 TD builds > 2020.20020
 
 ## Installation. 
-Header on over to the release page. There you'll find a .vsix extension and a tox. You can install the vsix extension by hitting control+shift+P and selecting extensions=>install from vsix.
+Clone or download this REPO and then head over to the BUILDS directory. There you'll find a .vsix extension and a tox. You can install the vsix extension by hitting control+shift+P and selecting extensions=>install from vsix. You can also download the latest version from the Release Tab of the repo
 
-you can also go here for feature breakdown and installation instructions.
+
+## Contributing
+Feel free! We(meaning me) are actively accepting pull requests.
 
 
 ## Known Issues
-Currently `td_completes_me` will only work with one instance of Touch. In theory you could run two instances but because we use a TCP based transport running a second instance with a `td_completes_me` tox in it will cause things to BREAK
+Currently the `td_completes_me` uses a tcp based transport to communicate between Touch and VsCode. It will communicate by default on port 1338. If there is another process operating on this port then it will cause the extension to break. In practice this won't have any effect on editing your networks, you just won't get those sweet auto-completions!
+
 
 ## Tested On
 PC. It will probably work on a Mac.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
 
-### 1.0.0
+### 0.3.0
 
-Initial release of ...
+Initial release.
+
+### 0.3.1
+fix warnings from external callback scripts
+
+
+
 
 
 **Enjoy!**
