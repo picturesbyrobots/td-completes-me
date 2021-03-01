@@ -5,7 +5,7 @@
 
 
 # What is this?
-This is a combo TOX/VSCode extension that leverages the Language Server protocal to send a list of context sensitive auto-completion items to Microsoft's Visual Studio Code. 
+This is a combo TOX/VSCode extension that leverages the Language Server protocol to send a list of context sensitive auto-completion items to Microsoft's Visual Studio Code. 
 
 
 
@@ -43,7 +43,7 @@ Right now only VSCode is supported. If there's interest we'll consider a Sublime
 TD builds > 2020.20020
 
 ## Installation. 
-Clone or download this REPO and then head over to the BUILDS directory. There you'll find a .vsix extension and a tox. You can install the vsix extension by hitting control+shift+P and selecting extensions=>install from vsix. You can also download the latest version from the Release Tab of the repo
+Clone or download this REPO and then head over to the BUILDS directory. There you'll find a .vsix extension and a tox. You can install the vsix extension by hitting control+shift+P and selecting extensions=>install from vsix. You can also download the latest version from the [Release Page](https://github.com/picturesbyrobots/td-completes-me/releases).
 
 
 ## Contributing
