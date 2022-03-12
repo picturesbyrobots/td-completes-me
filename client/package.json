@@ -15,8 +15,8 @@
 		"minimist": "^1.2.5"
 	},
 	"devDependencies": {
+		"@types/vscode": "^1.34.0",
 		"minimist": "^1.2.5",
-		"mocha": "^7.1.2",
-		"@types/vscode": "^1.34.0"
+		"mocha": "^9.2.2"
 	}
 }
